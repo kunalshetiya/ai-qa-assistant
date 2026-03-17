@@ -20,7 +20,7 @@ export default function QATestcaseUploader() {
 
   const handleSubmit = async () => {
     if (!files || files.length === 0) {
-      toast.error("Please upload at least one file.");
+      toast.error("Please upload a requirement document.");
       return;
     }
 
@@ -31,27 +31,23 @@ export default function QATestcaseUploader() {
 
     setLoading(true);
     try {
-      const res = await fetch("http://127.0.0.1:5000/qa_testcases", {
+      const res = await fetch("http://127.0.0.1:5000/generate-testcases", {
         method: "POST",
         body: formData,
       });
 
-      const isJson = res.headers
-        .get("content-type")
-        ?.includes("application/json");
+      const data = await res.json();
 
-      const data = isJson ? await res.json() : null;
-
-      if (res.ok && data?.output) {
-        setOutput(data.output);
-        setDownloadUrl("http://127.0.0.1:5000/output.xlsx");
+      if (res.ok && data?.download_url) {
+        setDownloadUrl("http://127.0.0.1:5000/download");
+        setOutput("Test cases generated successfully.");
         toast.success("Test cases generated!");
       } else {
-        toast.error(data?.error || "Unexpected response format.");
+        toast.error(data?.error || "Failed to generate test cases.");
       }
     } catch (err) {
-      console.error("Error calling backend:", err);
-      toast.error("Failed to connect to server.");
+      console.error("Error:", err);
+      toast.error("Failed to connect to backend.");
     } finally {
       setLoading(false);
     }
@@ -60,16 +56,30 @@ export default function QATestcaseUploader() {
   return (
     <div className="max-w-xl mx-auto py-12 px-4 text-gray-900 dark:text-white bg-white dark:bg-black min-h-screen">
       <Toaster position="top-right" />
-      <h1 className="text-2xl font-bold mb-6 text-center">QA Testcase Generator</h1>
+
+      {/* 🔥 NEW TITLE */}
+      <h1 className="text-3xl font-bold mb-2 text-center">
+        AI QA Assistant
+      </h1>
+
+      <p className="text-center mb-6 text-gray-500">
+        Generate test cases and edge cases using AI
+      </p>
+
       <Card className="dark:bg-zinc-900">
         <CardContent className="space-y-4 p-6">
           <div className="space-y-2">
-            <Label htmlFor="file">Upload SRS or Screenshots</Label>
+            <Label htmlFor="file">
+              Upload Requirement Document (PDF/DOCX)
+            </Label>
             <Input id="file" type="file" multiple onChange={handleFileChange} />
           </div>
+
           <Button onClick={handleSubmit} disabled={loading}>
             {loading ? "Generating..." : "Generate Test Cases"}
           </Button>
+
+          {/* 🔥 DOWNLOAD BUTTON */}
           {downloadUrl && (
             <a href={downloadUrl} download>
               <Button variant="outline" className="mt-2">
@@ -80,12 +90,18 @@ export default function QATestcaseUploader() {
         </CardContent>
       </Card>
 
+      {/* 🔥 OUTPUT DISPLAY */}
       {output && (
-        <div className="mt-8 bg-gray-100 dark:bg-zinc-800 p-4 rounded text-sm whitespace-pre-wrap max-h-[400px] overflow-auto">
-          <strong className="block mb-2">Generated Test Cases:</strong>
+        <div className="mt-8 bg-gray-100 dark:bg-zinc-800 p-4 rounded text-sm whitespace-pre-wrap">
+          <strong className="block mb-2">Output:</strong>
           {output}
         </div>
       )}
+
+      {/* 🔥 FOOTER (PRO TOUCH) */}
+      <p className="text-center text-xs mt-6 text-gray-400">
+        AI-powered QA automation tool
+      </p>
     </div>
   );
 }
