@@ -1,6 +1,7 @@
 # 🤖 AI QA Assistant
 
 AI QA Assistant is an intelligent tool that automatically generates **test cases and edge cases** from software requirements using AI.
+Designed and implemented backend APIs for processing input and generating structured outputs using LLMs.
 
 ---
 
